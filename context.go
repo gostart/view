@@ -12,14 +12,14 @@ func newContext(responseWriter http.ResponseWriter, httpRequest *http.Request, r
 		Response:       newResponse(responseWriter),
 		RespondingView: respondingView,
 	}
-	// ctx.Session = newSession(ctx)
+	ctx.Session = newSession(ctx)
 	return ctx
 }
 
 type Context struct {
 	Request  *Request
 	Response *Response
-	// Session  *Session
+	Session  *Session
 
 	// View that responds to the HTTP request
 	RespondingView View

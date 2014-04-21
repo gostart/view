@@ -19,25 +19,25 @@ type Request struct {
 
 // AddProtocolAndHostToURL adds the protocol (http:// or https://)
 // and request host (domain or IP) to an URL if not present.
-func (self *Request) AddProtocolAndHostToURL(url string) string {
+func (request *Request) AddProtocolAndHostToURL(url string) string {
 	if len(url) > 0 && url[0] == '/' {
-		if self.TLS != nil {
-			url = "https://" + self.Host + url
+		if request.TLS != nil {
+			url = "https://" + request.Host + url
 		} else {
-			url = "http://" + self.Host + url
+			url = "http://" + request.Host + url
 		}
 	}
 	return url
 }
 
 // URL returns the complete URL of the request including protocol and host.
-func (self *Request) URLString() string {
-	return self.AddProtocolAndHostToURL(self.RequestURI)
+func (request *Request) URLString() string {
+	return request.AddProtocolAndHostToURL(request.RequestURI)
 }
 
 // // todo: all browsers
-// func (self *Request) ParseUserAgent() (renderer string, version utils.VersionTuple, err error) {
-// 	s := self.UserAgent()
+// func (request *Request) ParseUserAgent() (renderer string, version utils.VersionTuple, err error) {
+// 	s := request.UserAgent()
 // 	switch {
 // 	case strings.Contains(s, "Gecko"):
 // 		if i := strings.Index(s, "rv:"); i != -1 {
@@ -61,15 +61,15 @@ func (self *Request) URLString() string {
 // 	return "", nil, nil
 // }
 
-func (self *Request) Port() uint16 {
-	i := strings.LastIndex(self.Host, ":")
+func (request *Request) Port() uint16 {
+	i := strings.LastIndex(request.Host, ":")
 	if i == -1 {
 		return 80
 	}
-	port, _ := strconv.ParseInt(self.Host[i+1:], 10, 16)
+	port, _ := strconv.ParseInt(request.Host[i+1:], 10, 16)
 	return uint16(port)
 }
 
-// func (self *Request) GetSecureCookie(name string) (string, bool) {
-// 	return self.webContext.GetSecureCookie(name)
-// }
+func (request *Request) GetSecureCookie(name string) (string, bool) {
+	panic("not implemented")
+}

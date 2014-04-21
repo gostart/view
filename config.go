@@ -15,6 +15,8 @@ var Config = Configuration{
 	BaseDirs:         []string{"."},
 	StaticDirs:       []string{"static"},    // every StaticDir will be appended to every BaseDir to search for static files
 	TemplateDirs:     []string{"templates"}, // every TemplateDir will be appended to every BaseDir to search for template files
+	SessionTracker:   &CookieSessionTracker{},
+	SessionDataStore: NewCookieSessionDataStore(),
 }
 
 var StructTagKey = "view"
@@ -31,6 +33,8 @@ type Configuration struct {
 	RedirectSubdomains  []string // Exapmle: "www"
 	SiteName            string
 	CookieSecret        string
+	SessionTracker      SessionTracker
+	SessionDataStore    SessionDataStore
 	Debug               struct {
 		ListenAndServeAt string
 		Mode             bool // Will be set to true if IsProductionServer is false
