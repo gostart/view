@@ -1,18 +1,21 @@
 package view
 
-type LinkModel interface {
-	URL
-	LinkContent(ctx *Context) View
-	LinkTitle(ctx *Context) string
-	LinkRel(ctx *Context) string
-}
+// type LinkModel interface {
+// 	URLGetter
+// 	LinkContent(ctx *Context) View
+// 	LinkTitle(ctx *Context) string
+// 	LinkRel(ctx *Context) string
+// }
 
 // Link represents an HTML <a> or <link> element depending on UseLinkTag.
 // Content and title of the Model will only be rendered for <a>.
 type Link struct {
+	URLGetter
 	ID         string
 	Class      string
-	Model      LinkModel
+	Content    View
+	Title      string
+	Rel        string
 	NewWindow  bool
 	UseLinkTag bool
 }
@@ -28,23 +31,16 @@ func (self *Link) Render(ctx *Context) (err error) {
 	if self.NewWindow {
 		ctx.Response.XML.Attrib("target", "_blank")
 	}
-	if self.Model != nil {
-		ctx.Response.XML.Attrib("href", self.Model.URL(ctx))
-		ctx.Response.XML.AttribIfNotDefault("rel", self.Model.LinkRel(ctx))
-	}
+	ctx.Response.XML.Attrib("href", self.URL(ctx))
+	ctx.Response.XML.AttribIfNotDefault("rel", self.Rel)
 	if self.UseLinkTag {
 		ctx.Response.XML.CloseTag() // link
 	} else {
-		ctx.Response.XML.AttribIfNotDefault("title", self.Model.LinkTitle(ctx))
-		content := self.Model.LinkContent(ctx)
-		if content != nil {
-			err = content.Render(ctx)
+		ctx.Response.XML.AttribIfNotDefault("title", self.Title)
+		if self.Content != nil {
+			err = self.Content.Render(ctx)
 		}
 		ctx.Response.XML.CloseTagAlways() // a
 	}
 	return err
-}
-
-func (self *Link) URL(ctx *Context) string {
-	return self.Model.URL(ctx)
 }

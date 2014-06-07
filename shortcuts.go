@@ -45,39 +45,37 @@ func PrintfEscape(text string, args ...interface{}) HTML {
 // }
 
 // A creates <a href="url">content</a>
-func A(url interface{}, content ...interface{}) *Link {
-	return &Link{Model: NewLinkModel(url, content...)}
+func A(url URLGetter, content ...interface{}) *Link {
+	return &Link{URLGetter: url, Content: WrapContents(content...)}
 }
 
 // A_nofollow creates <a href="url" rel="nofollow">content</a>
-func A_nofollow(url interface{}, content ...interface{}) *Link {
-	return &Link{Model: NewLinkModelRel(url, "nofollow", content...)}
+func A_nofollow(url URLGetter, content ...interface{}) *Link {
+	return &Link{URLGetter: url, Content: WrapContents(content...), Rel: "nofollow"}
 }
 
 // A_blank creates <a href="url" target="_blank">content</a>
-func A_blank(url interface{}, content ...interface{}) *Link {
-	return &Link{NewWindow: true, Model: NewLinkModel(url, content...)}
+func A_blank(url URLGetter, content ...interface{}) *Link {
+	return &Link{URLGetter: url, Content: WrapContents(content...), NewWindow: true}
 }
 
 // A_blank_nofollow creates <a href="url" target="_blank" rel="nofollow">content</a>
-func A_blank_nofollow(url interface{}, content ...interface{}) *Link {
-	return &Link{NewWindow: true, Model: NewLinkModelRel(url, "nofollow", content...)}
+func A_blank_nofollow(url URLGetter, content ...interface{}) *Link {
+	return &Link{URLGetter: url, Content: WrapContents(content...), Rel: "nofollow", NewWindow: true}
 }
 
 // StylesheetLink creates <link rel='stylesheet' href='url'>
-func StylesheetLink(url string) *Link {
+func StylesheetLink(url URLGetter) *Link {
 	return &Link{
-		Model: &StringLink{
-			Url: url,
-			Rel: "stylesheet",
-		},
+		URLGetter:  url,
+		Rel:        "stylesheet",
 		UseLinkTag: true,
 	}
 }
 
 // RSSLink creates <link rel='alternate' type='application/rss+xml' title='title' href='url'>
-func RSSLink(title string, url URL) View {
-	return RenderView(
+func RSSLink(title string, url URLGetter) View {
+	return ViewFunc(
 		func(ctx *Context) error {
 			href := url.URL(ctx)
 			ctx.Response.Printf("<link rel='alternate' type='application/rss+xml' title='%s' href='%s'>", title, href)
@@ -103,7 +101,7 @@ func IMG(url string, dimensions ...int) *Image {
 
 // SECTION creates <sections class="class">content</section>
 func SECTION(class string, content ...interface{}) View {
-	return &ShortTag{Tag: "section", Class: class, Content: WrapContents(content...)}
+	return &Tag{Tag: "section", Class: class, Content: WrapContents(content...)}
 }
 
 // DIV creates <span class="class">content</span>
@@ -113,87 +111,87 @@ func SPAN(class string, content ...interface{}) *Span {
 
 // P creates <p>content</p>
 func P(content ...interface{}) View {
-	return &ShortTag{Tag: "p", Content: WrapContents(content...)}
+	return &Tag{Tag: "p", Content: WrapContents(content...)}
 }
 
 // H1 creates <h1>content</h1>
 func H1(content ...interface{}) View {
-	return &ShortTag{Tag: "h1", Content: WrapContents(content...)}
+	return &Tag{Tag: "h1", Content: WrapContents(content...)}
 }
 
 // H2 creates <h2>content</h2>
 func H2(content ...interface{}) View {
-	return &ShortTag{Tag: "h2", Content: WrapContents(content...)}
+	return &Tag{Tag: "h2", Content: WrapContents(content...)}
 }
 
 // H3 creates <h3>content</h3>
 func H3(content ...interface{}) View {
-	return &ShortTag{Tag: "h3", Content: WrapContents(content...)}
+	return &Tag{Tag: "h3", Content: WrapContents(content...)}
 }
 
 // H4 creates <h4>content</h4>
 func H4(content ...interface{}) View {
-	return &ShortTag{Tag: "h4", Content: WrapContents(content...)}
+	return &Tag{Tag: "h4", Content: WrapContents(content...)}
 }
 
 // H5 creates <h5>content</h5>
 func H5(content ...interface{}) View {
-	return &ShortTag{Tag: "h5", Content: WrapContents(content...)}
+	return &Tag{Tag: "h5", Content: WrapContents(content...)}
 }
 
 // H creates <h6>content</h6>
 func H6(content ...interface{}) View {
-	return &ShortTag{Tag: "h6", Content: WrapContents(content...)}
+	return &Tag{Tag: "h6", Content: WrapContents(content...)}
 }
 
 // B creates <b>content</b>
 func B(content ...interface{}) View {
-	return &ShortTag{Tag: "b", Content: WrapContents(content...)}
+	return &Tag{Tag: "b", Content: WrapContents(content...)}
 }
 
 // I creates <i>content</i>
 func I(content ...interface{}) View {
-	return &ShortTag{Tag: "i", Content: WrapContents(content...)}
+	return &Tag{Tag: "i", Content: WrapContents(content...)}
 }
 
 // Q creates <q>content</q>
 func Q(content ...interface{}) View {
-	return &ShortTag{Tag: "q", Content: WrapContents(content...)}
+	return &Tag{Tag: "q", Content: WrapContents(content...)}
 }
 
 // DEL creates <del>content</del>
 func DEL(content ...interface{}) View {
-	return &ShortTag{Tag: "del", Content: WrapContents(content...)}
+	return &Tag{Tag: "del", Content: WrapContents(content...)}
 }
 
 // EM creates <em>content</em>
 func EM(content ...interface{}) View {
-	return &ShortTag{Tag: "em", Content: WrapContents(content...)}
+	return &Tag{Tag: "em", Content: WrapContents(content...)}
 }
 
 // STRONG creates <strong>content</strong>
 func STRONG(content ...interface{}) View {
-	return &ShortTag{Tag: "strong", Content: WrapContents(content...)}
+	return &Tag{Tag: "strong", Content: WrapContents(content...)}
 }
 
 // DFN creates <dfn>content</dfn>
 func DFN(content ...interface{}) View {
-	return &ShortTag{Tag: "dfn", Content: WrapContents(content...)}
+	return &Tag{Tag: "dfn", Content: WrapContents(content...)}
 }
 
 // CODE creates <code>content</code>
 func CODE(content ...interface{}) View {
-	return &ShortTag{Tag: "code", Content: WrapContents(content...)}
+	return &Tag{Tag: "code", Content: WrapContents(content...)}
 }
 
 // PRE creates <pre>content</pre>
 func PRE(content ...interface{}) View {
-	return &ShortTag{Tag: "pre", Content: WrapContents(content...)}
+	return &Tag{Tag: "pre", Content: WrapContents(content...)}
 }
 
 // ABBR creates <abbr title="longTitle">abbreviation</abbr>
 func ABBR(longTitle, abbreviation string) View {
-	return &ShortTag{Tag: "abbr", Attribs: map[string]string{"title": longTitle}, Content: Escape(abbreviation)}
+	return &Tag{Tag: "abbr", Attribs: map[string]string{"title": longTitle}, Content: Escape(abbreviation)}
 }
 
 // UL is a shortcut to create an unordered list by wrapping items as HTML views.
@@ -204,11 +202,7 @@ func ABBR(longTitle, abbreviation string) View {
 //   UL(A(url1, "First Link"), A(url2, "Second Link"))
 //
 func UL(items ...interface{}) *List {
-	model := make(ViewsListModel, len(items))
-	for i, item := range items {
-		model[i] = NewView(item)
-	}
-	return &List{Model: model}
+	return &List{Items: NewViews(items...)}
 }
 
 // OL is a shortcut to create an ordered list by wrapping items as HTML views.

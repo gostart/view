@@ -6,8 +6,8 @@ package view
 type Image struct {
 	ID     string
 	Class  string
-	URL    URL    // If URL is set, then Src will be ignored
-	Src    string // String URL of the image, used when URL is nil
+	URL    URLGetter // If URL is set, then Src will be ignored
+	Src    string    // String URL of the image, used when URL is nil
 	Width  int
 	Height int
 	Title  string
