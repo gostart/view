@@ -1,5 +1,9 @@
 package view
 
+import (
+	"net/http"
+)
+
 // View is the basic interface for all types in the view package.
 type View interface {
 	Render(ctx *Context) (err error)
@@ -9,6 +13,19 @@ type ViewFunc func(ctx *Context) error
 
 func (viewFunc ViewFunc) Render(ctx *Context) error {
 	return viewFunc(ctx)
+}
+
+func HTTPHandler(view View, urlArgs ...string) http.HandlerFunc {
+	return func(responseWriter http.ResponseWriter, request *http.Request) {
+		ctx := newContext(responseWriter, request, view, urlArgs)
+		err := view.Render(ctx)
+		if err != nil {
+			if !Config.Debug.Mode {
+				err = nil
+			}
+			ctx.Response.InternalServerError500(err)
+		}
+	}
 }
 
 // ProductionServerView returns view if view.Config.IsProductionServer
