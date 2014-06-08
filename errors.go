@@ -10,22 +10,22 @@ type ViewError interface {
 }
 
 var (
-	AuthorizationRequired401 ViewError = &plainTextResponse{401, "401 authorization required"}
-	Forbidden403             ViewError = &plainTextResponse{403, "403 forbidden"}
-	NotFound404              ViewError = &plainTextResponse{404, "404 page not found"}
-	NotModified304           ViewError = &response{304, "not modfied"}
+	ErrNotModified304           ViewError = &response{304, "not modfied"}
+	ErrAuthorizationRequired401 ViewError = &plainTextResponse{401, "401 authorization required"}
+	ErrForbidden403             ViewError = &plainTextResponse{403, "403 forbidden"}
+	ErrNotFound404              ViewError = &plainTextResponse{404, "404 page not found"}
 )
 
-func InternalServerError500(err error) ViewError {
-	return &internalServerError500{err}
-}
-
-func RedirectPermanently301(url URLGetter) ViewError {
+func ErrRedirectPermanently301(url URLGetter) ViewError {
 	return &redirect{301, url}
 }
 
-func RedirectTemporary302(url URLGetter) ViewError {
+func ErrRedirectTemporary302(url URLGetter) ViewError {
 	return &redirect{302, url}
+}
+
+func ErrInternalServerError500(err error) ViewError {
+	return &internalServerError500{err}
 }
 
 type internalServerError500 struct {

@@ -9,7 +9,7 @@ import (
 // ViewOrError returns view if err is nil, or else an Error view for err.
 func ViewOrError(view View, err error) View {
 	if err != nil {
-		return InternalServerError500(err)
+		return ErrInternalServerError500(err)
 	} else {
 		return view
 	}

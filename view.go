@@ -22,7 +22,7 @@ func HTTPHandler(view View, urlArgs ...string) http.Handler {
 		if err != nil {
 			errView, ok := err.(View)
 			if !ok {
-				errView = InternalServerError500(err)
+				errView = ErrInternalServerError500(err)
 			}
 			errView.Render(ctx)
 		}
