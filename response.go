@@ -100,46 +100,14 @@ func (response *Response) SetSecureCookie(name string, val string, age int64, pa
 	/// todo: ";HttpOnly"
 }
 
-func (response *Response) Abort(code int, body string) {
+func (response *Response) Respond(code int, body string) {
 	response.WriteHeader(code)
 	response.Print(body)
 }
 
-func (response *Response) Error(code int, body string) {
+func (response *Response) RespondPlainText(code int, body string) {
 	response.SetContentTypePlainText()
-	response.Abort(code, body)
-}
-
-func (response *Response) RedirectPermanently301(url string) {
-	response.Abort(301, url)
-}
-
-func (response *Response) RedirectTemporary302(url string) {
-	response.Abort(302, url)
-}
-
-func (response *Response) NotModified304() {
-	response.WriteHeader(304)
-}
-
-func (response *Response) AuthorizationRequired401() {
-	response.Error(401, "401 authorization required")
-}
-
-func (response *Response) Forbidden403() {
-	response.Error(403, "403 forbidden")
-}
-
-func (response *Response) NotFound404() {
-	response.Error(404, "404 page not found")
-}
-
-func (response *Response) InternalServerError500(err error) {
-	message := "500 internal server error"
-	if err != nil {
-		message += "\n\n" + err.Error()
-	}
-	response.Error(500, message)
+	response.Respond(code, body)
 }
 
 func (response *Response) SetContentType(contentType string) {

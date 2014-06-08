@@ -15,17 +15,18 @@ func (viewFunc ViewFunc) Render(ctx *Context) error {
 	return viewFunc(ctx)
 }
 
-func HTTPHandler(view View, urlArgs ...string) http.HandlerFunc {
-	return func(responseWriter http.ResponseWriter, request *http.Request) {
+func HTTPHandler(view View, urlArgs ...string) http.Handler {
+	return http.HandlerFunc(func(responseWriter http.ResponseWriter, request *http.Request) {
 		ctx := newContext(responseWriter, request, view, urlArgs)
 		err := view.Render(ctx)
 		if err != nil {
-			if !Config.Debug.Mode {
-				err = nil
+			errView, ok := err.(View)
+			if !ok {
+				errView = InternalServerError500(err)
 			}
-			ctx.Response.InternalServerError500(err)
+			errView.Render(ctx)
 		}
-	}
+	})
 }
 
 // ProductionServerView returns view if view.Config.IsProductionServer
