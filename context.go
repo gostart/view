@@ -5,12 +5,14 @@ import (
 	"net/http"
 )
 
-func newContext(responseWriter http.ResponseWriter, httpRequest *http.Request, respondingView View, urlArgs []string) *Context {
+func NewContext(responseWriter http.ResponseWriter, httpRequest *http.Request, urlArgs ...string) *Context {
+	if len(urlArgs) == 0 {
+		// todo extract from httpRequest
+	}
 	ctx := &Context{
-		URLArgs:        urlArgs,
-		Request:        newRequest(httpRequest),
-		Response:       newResponse(responseWriter),
-		RespondingView: respondingView,
+		URLArgs:  urlArgs,
+		Request:  newRequest(httpRequest),
+		Response: newResponse(responseWriter),
 	}
 	ctx.Session = newSession(ctx)
 	return ctx
@@ -20,9 +22,6 @@ type Context struct {
 	Request  *Request
 	Response *Response
 	Session  *Session
-
-	// View that responds to the HTTP request
-	RespondingView View
 
 	// Arguments parsed from the URL path
 	URLArgs []string

@@ -43,12 +43,12 @@ type Configuration struct {
 	}
 }
 
-func (self *Configuration) Init() error {
-	if self.initialized {
+func (config *Configuration) Init() error {
+	if config.initialized {
 		panic("view.Config already initialized")
 	}
 
-	if !self.IsProductionServer {
+	if !config.IsProductionServer {
 		addrs, err := net.InterfaceAddrs()
 		if err != nil {
 			return err
@@ -58,7 +58,7 @@ func (self *Configuration) Init() error {
 				ip := ipNet.IP.String()
 				for _, prodIP := range Config.ProductionServerIPs {
 					if ip == prodIP {
-						self.IsProductionServer = true
+						config.IsProductionServer = true
 						break
 					}
 				}
@@ -66,8 +66,8 @@ func (self *Configuration) Init() error {
 		}
 	}
 
-	if !self.IsProductionServer {
-		self.Debug.Mode = true
+	if !config.IsProductionServer {
+		config.Debug.Mode = true
 	}
 
 	// Check if dirs exists and make them absolute
@@ -94,6 +94,11 @@ func (self *Configuration) Init() error {
 		fmt.Println("TemplateDir:", Config.TemplateDirs[i])
 	}
 
-	self.initialized = true
+	config.initialized = true
 	return nil
+}
+
+// Deploy copies all known resources (static and template files) to targetDir
+func (config *Configuration) Deploy(targetDir string) error {
+	panic("not implemented") // todo
 }

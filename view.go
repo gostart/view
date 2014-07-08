@@ -17,7 +17,7 @@ func (viewFunc ViewFunc) Render(ctx *Context) error {
 
 func HTTPHandler(view View, urlArgs ...string) http.Handler {
 	return http.HandlerFunc(func(responseWriter http.ResponseWriter, request *http.Request) {
-		ctx := newContext(responseWriter, request, view, urlArgs)
+		ctx := NewContext(responseWriter, request, urlArgs...)
 		err := view.Render(ctx)
 		if err != nil {
 			errView, ok := err.(View)

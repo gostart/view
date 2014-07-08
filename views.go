@@ -3,8 +3,8 @@ package view
 // Views implements the View interface for a slice of views.
 type Views []View
 
-func (self Views) Render(ctx *Context) (err error) {
-	for _, view := range self {
+func (views Views) Render(ctx *Context) (err error) {
+	for _, view := range views {
 		if view != nil {
 			err = view.Render(ctx)
 			if err != nil {
@@ -13,4 +13,15 @@ func (self Views) Render(ctx *Context) (err error) {
 		}
 	}
 	return nil
+}
+
+func (views *Views) Insert(index int, view View) {
+	*views = append(*views, nil)
+	copy((*views)[index+1:], (*views)[index:])
+	(*views)[index] = view
+}
+
+func (views *Views) Remove(index int) {
+	copy((*views)[index:], (*views)[index+1:])
+	*views = (*views)[:len(*views)-1]
 }
