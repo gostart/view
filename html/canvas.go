@@ -1,4 +1,8 @@
-package view
+package html
+
+import (
+	"github.com/gostart/view"
+)
 
 // CANVAS creates <canvas class="class" width="width" height="height"></canvas>
 func CANVAS(class string, width, height int) *Canvas {
@@ -12,7 +16,7 @@ type Canvas struct {
 	Height int
 }
 
-func (canvas *Canvas) Render(ctx *Context) (err error) {
+func (canvas *Canvas) Render(ctx *view.Context) (err error) {
 	ctx.Response.XML.OpenTag("label")
 	ctx.Response.XML.AttribIfNotDefault("id", canvas.ID)
 	ctx.Response.XML.AttribIfNotDefault("class", canvas.Class)

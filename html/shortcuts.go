@@ -1,19 +1,12 @@
-package view
+package html
 
 import (
 	"fmt"
 	"html"
 	"reflect"
-)
 
-// ViewOrError returns view if err is nil, or else an Error view for err.
-func ViewOrError(view View, err error) View {
-	if err != nil {
-		return ErrInternalServerError500(err)
-	} else {
-		return view
-	}
-}
+	"github.com/gostart/view"
+)
 
 // Escape HTML escapes a string.
 func Escape(text string) HTML {
@@ -31,11 +24,11 @@ func PrintfEscape(text string, args ...interface{}) HTML {
 }
 
 // // LABEL creates a Label for target and returns it together with target.
-// func LABEL(label interface{}, target View) Views {
+// func LABEL(label interface{}, target view.View) view.Views {
 // 	if target.ID() == "" {
 // 		panic("Label target must have an ID")
 // 	}
-// 	return Views{
+// 	return view.Views{
 // 		&Label{
 // 			Content: NewView(label),
 // 			For:     target,
@@ -45,27 +38,27 @@ func PrintfEscape(text string, args ...interface{}) HTML {
 // }
 
 // A creates <a href="url">content</a>
-func A(url URLGetter, content ...interface{}) *Link {
+func A(url view.URLGetter, content ...interface{}) *Link {
 	return &Link{URLGetter: url, Content: WrapContents(content...)}
 }
 
 // A_nofollow creates <a href="url" rel="nofollow">content</a>
-func A_nofollow(url URLGetter, content ...interface{}) *Link {
+func A_nofollow(url view.URLGetter, content ...interface{}) *Link {
 	return &Link{URLGetter: url, Content: WrapContents(content...), Rel: "nofollow"}
 }
 
 // A_blank creates <a href="url" target="_blank">content</a>
-func A_blank(url URLGetter, content ...interface{}) *Link {
+func A_blank(url view.URLGetter, content ...interface{}) *Link {
 	return &Link{URLGetter: url, Content: WrapContents(content...), NewWindow: true}
 }
 
 // A_blank_nofollow creates <a href="url" target="_blank" rel="nofollow">content</a>
-func A_blank_nofollow(url URLGetter, content ...interface{}) *Link {
+func A_blank_nofollow(url view.URLGetter, content ...interface{}) *Link {
 	return &Link{URLGetter: url, Content: WrapContents(content...), Rel: "nofollow", NewWindow: true}
 }
 
 // StylesheetLink creates <link rel='stylesheet' href='url'>
-func StylesheetLink(url URLGetter) *Link {
+func StylesheetLink(url view.URLGetter) *Link {
 	return &Link{
 		URLGetter:  url,
 		Rel:        "stylesheet",
@@ -74,9 +67,9 @@ func StylesheetLink(url URLGetter) *Link {
 }
 
 // RSSLink creates <link rel='alternate' type='application/rss+xml' title='title' href='url'>
-func RSSLink(title string, url URLGetter) View {
-	return ViewFunc(
-		func(ctx *Context) error {
+func RSSLink(title string, url view.URLGetter) view.View {
+	return view.ViewFunc(
+		func(ctx *view.Context) error {
 			href := url.URL(ctx)
 			ctx.Response.Printf("<link rel='alternate' type='application/rss+xml' title='%s' href='%s'>", title, href)
 			return nil
@@ -100,7 +93,7 @@ func IMG(url string, dimensions ...int) *Image {
 }
 
 // SECTION creates <sections class="class">content</section>
-func SECTION(class string, content ...interface{}) View {
+func SECTION(class string, content ...interface{}) view.View {
 	return &Tag{Tag: "section", Class: class, Content: WrapContents(content...)}
 }
 
@@ -110,87 +103,87 @@ func SPAN(class string, content ...interface{}) *Span {
 }
 
 // P creates <p>content</p>
-func P(content ...interface{}) View {
+func P(content ...interface{}) view.View {
 	return &Tag{Tag: "p", Content: WrapContents(content...)}
 }
 
 // H1 creates <h1>content</h1>
-func H1(content ...interface{}) View {
+func H1(content ...interface{}) view.View {
 	return &Tag{Tag: "h1", Content: WrapContents(content...)}
 }
 
 // H2 creates <h2>content</h2>
-func H2(content ...interface{}) View {
+func H2(content ...interface{}) view.View {
 	return &Tag{Tag: "h2", Content: WrapContents(content...)}
 }
 
 // H3 creates <h3>content</h3>
-func H3(content ...interface{}) View {
+func H3(content ...interface{}) view.View {
 	return &Tag{Tag: "h3", Content: WrapContents(content...)}
 }
 
 // H4 creates <h4>content</h4>
-func H4(content ...interface{}) View {
+func H4(content ...interface{}) view.View {
 	return &Tag{Tag: "h4", Content: WrapContents(content...)}
 }
 
 // H5 creates <h5>content</h5>
-func H5(content ...interface{}) View {
+func H5(content ...interface{}) view.View {
 	return &Tag{Tag: "h5", Content: WrapContents(content...)}
 }
 
 // H creates <h6>content</h6>
-func H6(content ...interface{}) View {
+func H6(content ...interface{}) view.View {
 	return &Tag{Tag: "h6", Content: WrapContents(content...)}
 }
 
 // B creates <b>content</b>
-func B(content ...interface{}) View {
+func B(content ...interface{}) view.View {
 	return &Tag{Tag: "b", Content: WrapContents(content...)}
 }
 
 // I creates <i>content</i>
-func I(content ...interface{}) View {
+func I(content ...interface{}) view.View {
 	return &Tag{Tag: "i", Content: WrapContents(content...)}
 }
 
 // Q creates <q>content</q>
-func Q(content ...interface{}) View {
+func Q(content ...interface{}) view.View {
 	return &Tag{Tag: "q", Content: WrapContents(content...)}
 }
 
 // DEL creates <del>content</del>
-func DEL(content ...interface{}) View {
+func DEL(content ...interface{}) view.View {
 	return &Tag{Tag: "del", Content: WrapContents(content...)}
 }
 
 // EM creates <em>content</em>
-func EM(content ...interface{}) View {
+func EM(content ...interface{}) view.View {
 	return &Tag{Tag: "em", Content: WrapContents(content...)}
 }
 
 // STRONG creates <strong>content</strong>
-func STRONG(content ...interface{}) View {
+func STRONG(content ...interface{}) view.View {
 	return &Tag{Tag: "strong", Content: WrapContents(content...)}
 }
 
 // DFN creates <dfn>content</dfn>
-func DFN(content ...interface{}) View {
+func DFN(content ...interface{}) view.View {
 	return &Tag{Tag: "dfn", Content: WrapContents(content...)}
 }
 
 // CODE creates <code>content</code>
-func CODE(content ...interface{}) View {
+func CODE(content ...interface{}) view.View {
 	return &Tag{Tag: "code", Content: WrapContents(content...)}
 }
 
 // PRE creates <pre>content</pre>
-func PRE(content ...interface{}) View {
+func PRE(content ...interface{}) view.View {
 	return &Tag{Tag: "pre", Content: WrapContents(content...)}
 }
 
 // ABBR creates <abbr title="longTitle">abbreviation</abbr>
-func ABBR(longTitle, abbreviation string) View {
+func ABBR(longTitle, abbreviation string) view.View {
 	return &Tag{Tag: "abbr", Attribs: map[string]string{"title": longTitle}, Content: Escape(abbreviation)}
 }
 
@@ -218,14 +211,14 @@ func OL(items ...interface{}) *List {
 	return list
 }
 
-// NewView encapsulates content as View.
+// NewView encapsulates content as view.View.
 // Strings or fmt.Stringer implementations will be HTML escaped.
-// View implementations will be passed through.
-func NewView(content interface{}) View {
+// view.View implementations will be passed through.
+func NewView(content interface{}) view.View {
 	if content == nil {
 		return nil
 	}
-	if view, ok := content.(View); ok {
+	if view, ok := content.(view.View); ok {
 		return view
 	}
 	if stringer, ok := content.(fmt.Stringer); ok {
@@ -240,23 +233,23 @@ func NewView(content interface{}) View {
 
 // NewViews encapsulates multiple content arguments as views by calling NewView()
 // for every one of them.
-func NewViews(contents ...interface{}) Views {
+func NewViews(contents ...interface{}) view.Views {
 	count := len(contents)
 	if count == 0 {
 		return nil
 	}
-	views := make(Views, count)
+	views := make(view.Views, count)
 	for i, content := range contents {
 		views[i] = NewView(content)
 	}
 	return views
 }
 
-// WrapContents encapsulates multiple content arguments as View by calling NewView()
+// WrapContents encapsulates multiple content arguments as view.View by calling NewView()
 // for every one of them.
 // It is more efficient for one view because the view is passed through instead of wrapped
-// with a Views slice like NewViews does.
-func WrapContents(contents ...interface{}) View {
+// with a view.Views slice like NewViews does.
+func WrapContents(contents ...interface{}) view.View {
 	count := len(contents)
 	switch count {
 	case 0:
@@ -264,7 +257,7 @@ func WrapContents(contents ...interface{}) View {
 	case 1:
 		return NewView(contents[0])
 	}
-	views := make(Views, count)
+	views := make(view.Views, count)
 	for i, content := range contents {
 		views[i] = NewView(content)
 	}

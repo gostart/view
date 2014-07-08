@@ -1,8 +1,10 @@
-package view
+package html
 
 import (
 	"fmt"
 	"net/url"
+
+	"github.com/gostart/view"
 )
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -23,7 +25,7 @@ type DummyImage struct {
 	Text            string
 }
 
-func (self *DummyImage) Render(ctx *Context) (err error) {
+func (self *DummyImage) Render(ctx *view.Context) (err error) {
 	src := fmt.Sprintf("http://dummyimage.com/%dx%d", self.Width, self.Height)
 
 	if self.BackgroundColor != "" || self.ForegroundColor != "" {

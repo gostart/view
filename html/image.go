@@ -1,4 +1,8 @@
-package view
+package html
+
+import (
+	"github.com/gostart/view"
+)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Image
@@ -6,14 +10,14 @@ package view
 type Image struct {
 	ID     string
 	Class  string
-	URL    URLGetter // If URL is set, then Src will be ignored
-	Src    string    // String URL of the image, used when URL is nil
+	URL    view.URLGetter // If URL is set, then Src will be ignored
+	Src    string         // String URL of the image, used when URL is nil
 	Width  int
 	Height int
 	Title  string
 }
 
-func (self *Image) Render(ctx *Context) (err error) {
+func (self *Image) Render(ctx *view.Context) (err error) {
 	ctx.Response.XML.OpenTag("img")
 	ctx.Response.XML.AttribIfNotDefault("id", self.ID)
 	ctx.Response.XML.AttribIfNotDefault("class", self.Class)

@@ -1,4 +1,8 @@
-package view
+package html
+
+import (
+	"github.com/gostart/view"
+)
 
 // type LinkModel interface {
 // 	URLGetter
@@ -10,17 +14,17 @@ package view
 // Link represents an HTML <a> or <link> element depending on UseLinkTag.
 // Content and title of the Model will only be rendered for <a>.
 type Link struct {
-	URLGetter
+	view.URLGetter
 	ID         string
 	Class      string
-	Content    View
+	Content    view.View
 	Title      string
 	Rel        string
 	NewWindow  bool
 	UseLinkTag bool
 }
 
-func (self *Link) Render(ctx *Context) (err error) {
+func (self *Link) Render(ctx *view.Context) (err error) {
 	if self.UseLinkTag {
 		ctx.Response.XML.OpenTag("link")
 	} else {

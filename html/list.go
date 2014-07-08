@@ -1,14 +1,18 @@
-package view
+package html
+
+import (
+	"github.com/gostart/view"
+)
 
 type List struct {
 	ID          string
 	Class       string
-	Items       []View
+	Items       []view.View
 	Ordered     bool
 	OrderOffset uint
 }
 
-func (self *List) Render(ctx *Context) (err error) {
+func (self *List) Render(ctx *view.Context) (err error) {
 	if self.Ordered {
 		ctx.Response.XML.OpenTag("ol")
 		ctx.Response.XML.Attrib("start", self.OrderOffset+1)

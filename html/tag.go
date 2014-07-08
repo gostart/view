@@ -1,4 +1,8 @@
-package view
+package html
+
+import (
+	"github.com/gostart/view"
+)
 
 // Tag represents an arbitrary HTML element.
 type Tag struct {
@@ -6,10 +10,10 @@ type Tag struct {
 	ID      string
 	Class   string
 	Attribs map[string]string
-	Content View
+	Content view.View
 }
 
-func (self *Tag) Render(ctx *Context) (err error) {
+func (self *Tag) Render(ctx *view.Context) (err error) {
 	ctx.Response.XML.OpenTag(self.Tag)
 	ctx.Response.XML.AttribIfNotDefault("id", self.ID)
 	ctx.Response.XML.AttribIfNotDefault("class", self.Class)

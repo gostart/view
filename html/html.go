@@ -1,8 +1,12 @@
-package view
+package html
+
+import (
+	"github.com/gostart/view"
+)
 
 type HTML string
 
-func (self HTML) Render(ctx *Context) (err error) {
+func (self HTML) Render(ctx *view.Context) (err error) {
 	_, err = ctx.Response.Write([]byte(self))
 	return err
 }

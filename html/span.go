@@ -1,4 +1,8 @@
-package view
+package html
+
+import (
+	"github.com/gostart/view"
+)
 
 ///////////////////////////////////////////////////////////////////////////////
 // Span
@@ -7,10 +11,10 @@ package view
 type Span struct {
 	ID      string
 	Class   string
-	Content View
+	Content view.View
 }
 
-func (self *Span) Render(ctx *Context) (err error) {
+func (self *Span) Render(ctx *view.Context) (err error) {
 	ctx.Response.XML.OpenTag("span")
 	ctx.Response.XML.AttribIfNotDefault("id", self.ID)
 	ctx.Response.XML.AttribIfNotDefault("class", self.Class)

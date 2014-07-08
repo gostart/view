@@ -1,4 +1,8 @@
-package view
+package html
+
+import (
+	"github.com/gostart/view"
+)
 
 // DIV creates <div class="class">content</div>
 func DIV(class string, content ...interface{}) *Div {
@@ -10,11 +14,11 @@ type Div struct {
 	ID      string
 	Class   string
 	Style   string
-	Content View
+	Content view.View
 	OnClick string
 }
 
-func (self *Div) Render(ctx *Context) (err error) {
+func (self *Div) Render(ctx *view.Context) (err error) {
 	ctx.Response.XML.OpenTag("div")
 	ctx.Response.XML.AttribIfNotDefault("id", self.ID)
 	ctx.Response.XML.AttribIfNotDefault("class", self.Class)
