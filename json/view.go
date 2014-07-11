@@ -29,7 +29,3 @@ func (v *View) Render(ctx *view.Context) (err error) {
 	ctx.Response.Write(data)
 	return nil
 }
-
-func (v *View) ServeHTTP(responseWriter http.ResponseWriter, request *http.Request) {
-	view.HTTPHandler(v).ServeHTTP(responseWriter, request)
-}

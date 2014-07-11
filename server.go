@@ -41,7 +41,8 @@ type Server struct {
 	TemplateDirs        []string
 	RedirectSubdomains  []string // Exapmle: "www"
 	SiteName            string
-	CookieSecret        []byte // nil to disable cookie-encryption, or AES key 16, 24, or 32 bytes to select AES-128, AES-192, or AES-256
+	CookieSecret        []byte           // nil to disable cookie-encryption, or AES key 16, 24, or 32 bytes to select AES-128, AES-192, or AES-256
+	CookieCipher        *AESBase64Cipher // will get initialized when when len(CookieSecret) > 0
 	TrackSessions       bool
 	SessionTracker      SessionTracker
 	SessionDataStore    SessionDataStore
@@ -54,9 +55,16 @@ type Server struct {
 	}
 }
 
-func (server *Server) Init() error {
+func (server *Server) Init() (err error) {
 	if server.initialized {
 		panic("view.Server already initialized")
+	}
+
+	if len(server.CookieSecret) > 0 {
+		server.CookieCipher, err = NewAESBase64Cipher(server.CookieSecret)
+		if err != nil {
+			return err
+		}
 	}
 
 	if !server.IsProductionServer {

@@ -88,23 +88,26 @@ func (response *Response) WriteHeader(code int) {
 }
 
 func (response *Response) SetSiteCookie(name, value string) {
-	if len(response.server.CookieSecret) > 0 {
-		value = string(encrypt(response.server.CookieSecret, []byte(value)))
+	cookieCipher := response.server.CookieCipher
+	if cookieCipher != nil {
+		value = string(cookieCipher.Encrypt([]byte(value)))
 	}
 	http.SetCookie(response.writer, &http.Cookie{Name: name, Value: value, Path: "/"})
 }
 
 func (response *Response) SetSiteCookieExpires(name, value string, expires time.Time) {
-	if len(response.server.CookieSecret) > 0 {
-		value = string(encrypt(response.server.CookieSecret, []byte(value)))
+	cookieCipher := response.server.CookieCipher
+	if cookieCipher != nil {
+		value = string(cookieCipher.Encrypt([]byte(value)))
 	}
 	http.SetCookie(response.writer, &http.Cookie{Name: name, Value: value, Path: "/", Expires: expires})
 }
 
 func (response *Response) SetSiteCookieBytes(name string, value []byte) {
 	var valueStr string
-	if len(response.server.CookieSecret) > 0 {
-		valueStr = encrypt(response.server.CookieSecret, value)
+	cookieCipher := response.server.CookieCipher
+	if cookieCipher != nil {
+		valueStr = cookieCipher.Encrypt(value)
 	} else {
 		valueStr = string(value)
 	}
@@ -113,8 +116,9 @@ func (response *Response) SetSiteCookieBytes(name string, value []byte) {
 
 func (response *Response) SetSiteCookieBytesExpires(name string, value []byte, expires time.Time) {
 	var valueStr string
-	if len(response.server.CookieSecret) > 0 {
-		valueStr = encrypt(response.server.CookieSecret, value)
+	cookieCipher := response.server.CookieCipher
+	if cookieCipher != nil {
+		valueStr = cookieCipher.Encrypt(value)
 	} else {
 		valueStr = string(value)
 	}

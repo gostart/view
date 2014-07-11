@@ -77,10 +77,11 @@ func (request *Request) SiteCookie(name string) (string, bool) {
 	if cookie == nil {
 		return "", false
 	}
-	if len(request.server.CookieSecret) == 0 {
+	cookieCipher := request.server.CookieCipher
+	if cookieCipher == nil {
 		return cookie.Value, true
 	}
-	return string(decrypt(request.server.CookieSecret, cookie.Value)), true
+	return string(cookieCipher.Decrypt(cookie.Value)), true
 }
 
 func (request *Request) SiteCookieBytes(name string) ([]byte, bool) {
@@ -88,8 +89,9 @@ func (request *Request) SiteCookieBytes(name string) ([]byte, bool) {
 	if cookie == nil {
 		return nil, false
 	}
-	if len(request.server.CookieSecret) == 0 {
+	cookieCipher := request.server.CookieCipher
+	if cookieCipher == nil {
 		return []byte(cookie.Value), true
 	}
-	return decrypt(request.server.CookieSecret, cookie.Value), true
+	return cookieCipher.Decrypt(cookie.Value), true
 }

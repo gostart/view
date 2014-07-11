@@ -8,13 +8,20 @@ import (
 	"io"
 )
 
-// encrypt string to base64 crypto using AES
-func encrypt(key []byte, plaintext []byte) string {
+type AESBase64Cipher struct {
+	block cipher.Block
+}
+
+func NewAESBase64Cipher(key []byte) (*AESBase64Cipher, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
+	return &AESBase64Cipher{block}, nil
+}
 
+// encrypt string to base64 crypto using AES
+func (c *AESBase64Cipher) Encrypt(plaintext []byte) string {
 	// The IV needs to be unique, but not secure. Therefore it's common to
 	// include it at the beginning of the ciphertext.
 	ciphertext := make([]byte, aes.BlockSize+len(plaintext))
@@ -23,7 +30,7 @@ func encrypt(key []byte, plaintext []byte) string {
 		panic(err)
 	}
 
-	stream := cipher.NewCFBEncrypter(block, iv)
+	stream := cipher.NewCFBEncrypter(c.block, iv)
 	stream.XORKeyStream(ciphertext[aes.BlockSize:], plaintext)
 
 	// convert to base64
@@ -31,13 +38,8 @@ func encrypt(key []byte, plaintext []byte) string {
 }
 
 // decrypt from base64 to decrypted string
-func decrypt(key []byte, cryptoText string) []byte {
+func (c *AESBase64Cipher) Decrypt(cryptoText string) []byte {
 	ciphertext, _ := base64.URLEncoding.DecodeString(cryptoText)
-
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		panic(err)
-	}
 
 	// The IV needs to be unique, but not secure. Therefore it's common to
 	// include it at the beginning of the ciphertext.
@@ -47,7 +49,7 @@ func decrypt(key []byte, cryptoText string) []byte {
 	iv := ciphertext[:aes.BlockSize]
 	ciphertext = ciphertext[aes.BlockSize:]
 
-	stream := cipher.NewCFBDecrypter(block, iv)
+	stream := cipher.NewCFBDecrypter(c.block, iv)
 
 	// XORKeyStream can work in-place if the two arguments are the same.
 	stream.XORKeyStream(ciphertext, ciphertext)
