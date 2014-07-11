@@ -15,4 +15,6 @@ func init() {
 }
 
 type Endpoint struct {
+	URL
+	View View
 }

@@ -1,6 +1,7 @@
-package view
+package xml
 
 import (
+	"encoding/xml"
 	"fmt"
 	"html"
 	"io"
@@ -9,27 +10,24 @@ import (
 	"github.com/ungerik/go-dry"
 )
 
-///////////////////////////////////////////////////////////////////////////////
-// XMLWriter
-
-func NewXMLWriter(writer io.Writer) *XMLWriter {
-	if xmlWriter, ok := writer.(*XMLWriter); ok {
+func NewWriter(writer io.Writer) *Writer {
+	if xmlWriter, ok := writer.(*Writer); ok {
 		return xmlWriter
 	}
-	return &XMLWriter{writer: writer}
+	return &Writer{writer: writer}
 }
 
-type XMLWriter struct {
+type Writer struct {
 	writer    io.Writer
 	tagStack  []string
 	inOpenTag bool
 }
 
-func (self *XMLWriter) WriteXMLDeclaration() *XMLWriter {
-	return self.Content(`<?xml version="1.0" encoding="UTF-8"?>`)
+func (self *Writer) WriteXMLHeader() *Writer {
+	return self.Content(xml.Header)
 }
 
-func (self *XMLWriter) OpenTag(tag string) *XMLWriter {
+func (self *Writer) OpenTag(tag string) *Writer {
 	self.finishOpenTag()
 
 	self.writer.Write([]byte{'<'})
@@ -42,8 +40,8 @@ func (self *XMLWriter) OpenTag(tag string) *XMLWriter {
 }
 
 // value will be HTML escaped and concaternated
-func (self *XMLWriter) Attrib(name string, value ...interface{}) *XMLWriter {
-	errs.Assert(self.inOpenTag, "utils.XMLWriter.Attrib() must be called inside of open tag")
+func (self *Writer) Attrib(name string, value ...interface{}) *Writer {
+	errs.Assert(self.inOpenTag, "utils.Writer.Attrib() must be called inside of open tag")
 
 	fmt.Fprintf(self.writer, " %s='", name)
 	for _, valuePart := range value {
@@ -55,7 +53,7 @@ func (self *XMLWriter) Attrib(name string, value ...interface{}) *XMLWriter {
 	return self
 }
 
-func (self *XMLWriter) AttribIfNotDefault(name string, value interface{}) *XMLWriter {
+func (self *Writer) AttribIfNotDefault(name string, value interface{}) *Writer {
 	if dry.IsZero(value) {
 		return self
 	}
@@ -64,39 +62,39 @@ func (self *XMLWriter) AttribIfNotDefault(name string, value interface{}) *XMLWr
 
 // AttribFlag writes a name="name" attribute if flag is true,
 // else nothing will be written.
-func (self *XMLWriter) AttribFlag(name string, flag bool) *XMLWriter {
+func (self *Writer) AttribFlag(name string, flag bool) *Writer {
 	if flag {
 		self.Attrib(name, name)
 	}
 	return self
 }
 
-func (self *XMLWriter) Content(s string) *XMLWriter {
+func (self *Writer) Content(s string) *Writer {
 	self.Write([]byte(s))
 	return self
 }
 
-func (self *XMLWriter) EscapeContent(s string) *XMLWriter {
+func (self *Writer) EscapeContent(s string) *Writer {
 	self.Write([]byte(html.EscapeString(s)))
 	return self
 }
 
-func (self *XMLWriter) Printf(format string, args ...interface{}) *XMLWriter {
+func (self *Writer) Printf(format string, args ...interface{}) *Writer {
 	fmt.Fprintf(self, format, args...)
 	return self
 }
 
-func (self *XMLWriter) PrintfEscape(format string, args ...interface{}) *XMLWriter {
+func (self *Writer) PrintfEscape(format string, args ...interface{}) *Writer {
 	return self.EscapeContent(fmt.Sprintf(format, args...))
 }
 
 // implements io.Writer
-func (self *XMLWriter) Write(p []byte) (n int, err error) {
+func (self *Writer) Write(p []byte) (n int, err error) {
 	self.finishOpenTag()
 	return self.writer.Write(p)
 }
 
-func (self *XMLWriter) CloseTag() *XMLWriter {
+func (self *Writer) CloseTag() *Writer {
 	// this kind of sucks
 	// if we can haz append() why not pop()?
 	top := len(self.tagStack) - 1
@@ -116,19 +114,19 @@ func (self *XMLWriter) CloseTag() *XMLWriter {
 }
 
 // Creates an explicit close tag, even if there is no content
-func (self *XMLWriter) CloseTagAlways() *XMLWriter {
+func (self *Writer) CloseTagAlways() *Writer {
 	self.finishOpenTag()
 	return self.CloseTag()
 }
 
-func (self *XMLWriter) finishOpenTag() {
+func (self *Writer) finishOpenTag() {
 	if self.inOpenTag {
 		self.writer.Write([]byte{'>'})
 		self.inOpenTag = false
 	}
 }
 
-func (self *XMLWriter) Reset() {
+func (self *Writer) Reset() {
 	if self.tagStack != nil {
 		self.tagStack = self.tagStack[0:0]
 	}

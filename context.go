@@ -5,20 +5,24 @@ import (
 	"net/http"
 )
 
-func NewContext(responseWriter http.ResponseWriter, httpRequest *http.Request, urlArgs ...string) *Context {
+func NewContext(server *Server, responseWriter http.ResponseWriter, httpRequest *http.Request, urlArgs ...string) *Context {
 	if len(urlArgs) == 0 {
 		// todo extract from httpRequest
 	}
 	ctx := &Context{
+		Server:   server,
+		Request:  newRequest(server, httpRequest),
+		Response: newResponse(server, responseWriter),
 		URLArgs:  urlArgs,
-		Request:  newRequest(httpRequest),
-		Response: newResponse(responseWriter),
 	}
-	ctx.Session = newSession(ctx)
+	if server.TrackSessions {
+		ctx.Session = newSession(ctx)
+	}
 	return ctx
 }
 
 type Context struct {
+	Server   *Server
 	Request  *Request
 	Response *Response
 	Session  *Session

@@ -25,7 +25,7 @@ type StaticFile struct {
 }
 
 func (self *StaticFile) Render(ctx *Context) (err error) {
-	filePath, found, modified := FindStaticFile(self.Filename)
+	filePath, found, modified := ctx.Server.FindStaticFile(self.Filename)
 	if !found {
 		return errs.Format("Static file not found: %s", self.Filename)
 	}

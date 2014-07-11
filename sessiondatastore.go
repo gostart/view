@@ -3,8 +3,8 @@ package view
 import (
 	"bytes"
 	"encoding/gob"
+
 	"github.com/ungerik/go-start/errs"
-	"time"
 )
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@ type SessionDataStore interface {
 // CookieSessionDataStore
 
 func NewCookieSessionDataStore() SessionDataStore {
-	return &CookieSessionDataStore{"gostart_session_data"}
+	return &CookieSessionDataStore{"session_"}
 }
 
 type CookieSessionDataStore struct {
@@ -37,17 +37,12 @@ func (sessionDataStore *CookieSessionDataStore) Get(ctx *Context, data interface
 		return false, errs.Format("Can't set session data without a session id")
 	}
 
-	cookieValue, ok := ctx.Request.GetSecureCookie(sessionDataStore.cookieName(sessionID))
+	cookieValue, ok := ctx.Request.SiteCookieBytes(sessionDataStore.cookieName(sessionID))
 	if !ok {
 		return false, nil
 	}
 
-	decryptedCookieValue, err := DecryptCookie([]byte(cookieValue))
-	if err != nil {
-		return false, err
-	}
-
-	decoder := gob.NewDecoder(bytes.NewBuffer(decryptedCookieValue))
+	decoder := gob.NewDecoder(bytes.NewBuffer(cookieValue))
 	err = decoder.Decode(data)
 	return err == nil, err
 }
@@ -64,16 +59,13 @@ func (sessionDataStore *CookieSessionDataStore) Set(ctx *Context, data interface
 	if err != nil {
 		return err
 	}
-	dataBytes, err := EncryptCookie(buffer.Bytes())
-	if err != nil {
-		return err
-	}
+	dataBytes := buffer.Bytes()
 
 	if len(dataBytes) > 4000 { // Max HTTP header size is 4094 minus some space for protocol
 		return errs.Format("Session %s data size %d is larger than cookie limit of 4000 bytes", sessionID, len(dataBytes))
 	}
 
-	ctx.Response.SetSecureCookie(sessionDataStore.cookieName(sessionID), string(dataBytes), 0, "/")
+	ctx.Response.SetSiteCookieBytes(sessionDataStore.cookieName(sessionID), dataBytes)
 	return nil
 }
 
@@ -83,6 +75,6 @@ func (sessionDataStore *CookieSessionDataStore) Delete(ctx *Context) (err error)
 		return errs.Format("Can't delete session data without a session id")
 	}
 
-	ctx.Response.SetSecureCookie(sessionDataStore.cookieName(sessionID), "", -time.Now().Unix(), "/")
+	ctx.Response.DeleteSiteCookie(sessionDataStore.cookieName(sessionID))
 	return nil
 }

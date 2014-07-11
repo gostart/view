@@ -6,14 +6,16 @@ import (
 	"strings"
 )
 
-func newRequest(httpRequest *http.Request) *Request {
+func newRequest(server *Server, httpRequest *http.Request) *Request {
 	return &Request{
 		Request: httpRequest,
+		server:  server,
 	}
 }
 
 type Request struct {
 	*http.Request
+	server *Server
 	Params map[string]string
 }
 
@@ -70,6 +72,24 @@ func (request *Request) Port() uint16 {
 	return uint16(port)
 }
 
-func (request *Request) GetSecureCookie(name string) (string, bool) {
-	panic("not implemented")
+func (request *Request) SiteCookie(name string) (string, bool) {
+	cookie, _ := request.Request.Cookie(name)
+	if cookie == nil {
+		return "", false
+	}
+	if len(request.server.CookieSecret) == 0 {
+		return cookie.Value, true
+	}
+	return string(decrypt(request.server.CookieSecret, cookie.Value)), true
+}
+
+func (request *Request) SiteCookieBytes(name string) ([]byte, bool) {
+	cookie, _ := request.Request.Cookie(name)
+	if cookie == nil {
+		return nil, false
+	}
+	if len(request.server.CookieSecret) == 0 {
+		return []byte(cookie.Value), true
+	}
+	return decrypt(request.server.CookieSecret, cookie.Value), true
 }

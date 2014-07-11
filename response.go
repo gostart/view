@@ -8,101 +8,127 @@ import (
 	"mime"
 	"net/http"
 	"strings"
+	"time"
 )
 
-func newResponse(responseWriter http.ResponseWriter) *Response {
-	response := &Response{
-		ResponseWriter: responseWriter,
+func newResponse(server *Server, responseWriter http.ResponseWriter) *Response {
+	return &Response{
+		server: server,
+		writer: responseWriter,
 	}
-	response.PushBody()
-	return response
-}
-
-type responseBody struct {
-	buffer *bytes.Buffer
-	xml    *XMLWriter
 }
 
 type Response struct {
-	http.ResponseWriter
+	bytes.Buffer
 
-	// Session *Session
-
-	bodyStack []responseBody
-
-	XML *XMLWriter // XML allowes the Response to be used as XMLWriter
+	server *Server
+	writer http.ResponseWriter
 
 	dynamicStyle       dependencyHeap
 	dynamicHeadScripts dependencyHeap
 	dynamicScripts     dependencyHeap
 }
 
-// PushBody pushes the buffer of the response body on a stack
-// and sets a new empty buffer.
-// This can be used to render intermediate text results.
-// Note: Only the response body is pushed, all other state changes
-// like setting headers will affect the final response.
-func (response *Response) PushBody() {
-	var b responseBody
-	b.buffer = new(bytes.Buffer)
-	b.xml = NewXMLWriter(b.buffer)
-	response.bodyStack = append(response.bodyStack, b)
-	response.XML = b.xml
+// // PushBody pushes the buffer of the response body on a stack
+// // and sets a new empty buffer.
+// // This can be used to render intermediate text results.
+// // Note: Only the response body is pushed, all other state changes
+// // like setting headers will affect the final response.
+// func (response *Response) PushBody() {
+// 	var b responseBody
+// 	b.buffer = new(bytes.Buffer)
+// 	b.xml = NewXMLWriter(b.buffer)
+// 	response.bodyStack = append(response.bodyStack, b)
+// 	response.XML = b.xml
+// }
+
+// // PopBody pops the buffer of the response body from the stack
+// // and returns its content.
+// func (response *Response) PopBody() (bufferData []byte) {
+// 	last := len(response.bodyStack) - 1
+// 	bufferData = response.bodyStack[last].buffer.Bytes()
+// 	response.bodyStack = response.bodyStack[0:last]
+// 	response.XML = response.bodyStack[last-1].xml
+// 	return bufferData
+// }
+
+// // PopBodyString pops the buffer of the response body from the stack
+// // and returns its content as string.
+// func (response *Response) PopBodyString() (bufferData string) {
+// 	return string(response.PopBody())
+// }
+
+func (response *Response) Print(a ...interface{}) (n int, err error) {
+	return fmt.Fprint(response.writer, a...)
 }
 
-// PopBody pops the buffer of the response body from the stack
-// and returns its content.
-func (response *Response) PopBody() (bufferData []byte) {
-	last := len(response.bodyStack) - 1
-	bufferData = response.bodyStack[last].buffer.Bytes()
-	response.bodyStack = response.bodyStack[0:last]
-	response.XML = response.bodyStack[last-1].xml
-	return bufferData
+func (response *Response) Printf(format string, a ...interface{}) (n int, err error) {
+	return fmt.Fprintf(response.writer, format, a...)
 }
 
-// PopBodyString pops the buffer of the response body from the stack
-// and returns its content as string.
-func (response *Response) PopBodyString() (bufferData string) {
-	return string(response.PopBody())
+func (response *Response) Println(a ...interface{}) (n int, err error) {
+	return fmt.Fprintln(response.writer, a...)
 }
 
-func (response *Response) Write(p []byte) (n int, err error) {
-	return response.XML.Write(p)
-}
-
-func (response *Response) WriteByte(c byte) error {
-	_, err := response.XML.Write([]byte{c})
-	return err
-}
-
-func (response *Response) Print(s string) *Response {
-	_, err := response.XML.Write([]byte(s))
+func (response *Response) Out(s string) *Response {
+	_, err := response.WriteString(s)
 	if err != nil {
 		panic(err)
 	}
 	return response
 }
 
-func (response *Response) Printf(format string, args ...interface{}) (n int, err error) {
-	return fmt.Fprintf(response.XML, format, args...)
+func (response *Response) Header() http.Header {
+	return response.writer.Header()
 }
 
-func (response *Response) String() string {
-	return response.bodyStack[len(response.bodyStack)-1].buffer.String()
+func (response *Response) WriteHeader(code int) {
+	response.writer.WriteHeader(code)
+
 }
 
-func (response *Response) Bytes() []byte {
-	return response.bodyStack[len(response.bodyStack)-1].buffer.Bytes()
+func (response *Response) SetSiteCookie(name, value string) {
+	if len(response.server.CookieSecret) > 0 {
+		value = string(encrypt(response.server.CookieSecret, []byte(value)))
+	}
+	http.SetCookie(response.writer, &http.Cookie{Name: name, Value: value, Path: "/"})
 }
 
-func (response *Response) SetSecureCookie(name string, val string, age int64, path string) {
-	panic("not implemented")
-	/// todo: ";HttpOnly"
+func (response *Response) SetSiteCookieExpires(name, value string, expires time.Time) {
+	if len(response.server.CookieSecret) > 0 {
+		value = string(encrypt(response.server.CookieSecret, []byte(value)))
+	}
+	http.SetCookie(response.writer, &http.Cookie{Name: name, Value: value, Path: "/", Expires: expires})
+}
+
+func (response *Response) SetSiteCookieBytes(name string, value []byte) {
+	var valueStr string
+	if len(response.server.CookieSecret) > 0 {
+		valueStr = encrypt(response.server.CookieSecret, value)
+	} else {
+		valueStr = string(value)
+	}
+	http.SetCookie(response.writer, &http.Cookie{Name: name, Value: valueStr, Path: "/"})
+}
+
+func (response *Response) SetSiteCookieBytesExpires(name string, value []byte, expires time.Time) {
+	var valueStr string
+	if len(response.server.CookieSecret) > 0 {
+		valueStr = encrypt(response.server.CookieSecret, value)
+	} else {
+		valueStr = string(value)
+	}
+	http.SetCookie(response.writer, &http.Cookie{Name: name, Value: valueStr, Path: "/", Expires: expires})
+}
+
+func (response *Response) DeleteSiteCookie(name string) {
+	http.SetCookie(response.writer, &http.Cookie{Name: name, Value: "delete", Path: "/", MaxAge: -1})
 }
 
 func (response *Response) Respond(code int, body string) {
 	response.WriteHeader(code)
-	response.Print(body)
+	response.Reset() // reset buffer so it will only contain body
+	response.WriteString(body)
 }
 
 func (response *Response) RespondPlainText(code int, body string) {

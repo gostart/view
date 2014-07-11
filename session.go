@@ -1,19 +1,22 @@
 package view
 
 import (
-	"encoding/base64"
 	"github.com/ungerik/go-start/errs"
-	// "github.com/ungerik/go-start/utils"
-	// "strconv"
-	// "strings"
 )
 
 func newSession(ctx *Context) *Session {
-	return &Session{
-		Tracker:   Config.SessionTracker,
-		DataStore: Config.SessionDataStore,
+	session := &Session{
+		Tracker:   ctx.Server.SessionTracker,
+		DataStore: ctx.Server.SessionDataStore,
 		Ctx:       ctx,
 	}
+	if session.Tracker == nil {
+		session.Tracker = new(CookieSessionTracker)
+	}
+	if session.DataStore == nil {
+		session.DataStore = NewCookieSessionDataStore()
+	}
+	return session
 }
 
 type Session struct {
@@ -47,9 +50,6 @@ func (session *Session) ID() string {
 	}
 	if session.cachedID != "" {
 		return session.cachedID
-	}
-	if Config.SessionTracker == nil {
-		return ""
 	}
 	session.cachedID = session.Tracker.ID(session.Ctx)
 	return session.cachedID
@@ -92,25 +92,4 @@ func (session *Session) DeleteData() (err error) {
 		return errs.Format("Can't delete session data without gostart/views.Config.SessionDataStore")
 	}
 	return session.DataStore.Delete(session.Ctx)
-}
-
-func EncryptCookie(data []byte) (result []byte, err error) {
-	// todo crypt
-
-	e := base64.StdEncoding
-	result = make([]byte, e.EncodedLen(len(data)))
-	e.Encode(result, data)
-	return result, nil
-}
-
-func DecryptCookie(data []byte) (result []byte, err error) {
-	// todo crypt
-
-	e := base64.StdEncoding
-	result = make([]byte, e.DecodedLen(len(data)))
-	_, err = e.Decode(result, data)
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
 }

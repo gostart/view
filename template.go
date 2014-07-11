@@ -1,7 +1,7 @@
 package view
 
 import (
-	"net/http"
+// "net/http"
 )
 
 type Template struct {
@@ -12,8 +12,4 @@ type Template struct {
 
 func (template *Template) Render(ctx *Context) (err error) {
 	return nil
-}
-
-func (template *Template) ServeHTTP(responseWriter http.ResponseWriter, request *http.Request) {
-	HTTPHandler(template).ServeHTTP(responseWriter, request)
 }

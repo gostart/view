@@ -1,9 +1,5 @@
 package view
 
-import (
-	"time"
-)
-
 ///////////////////////////////////////////////////////////////////////////////
 // SessionTracker
 
@@ -13,24 +9,24 @@ type SessionTracker interface {
 	DeleteID(ctx *Context)
 }
 
-const sessionIdCookie = "gostart_sid"
-
 ///////////////////////////////////////////////////////////////////////////////
 // CookieSessionTracker
+
+var SessionIDCookie = "session"
 
 // http://en.wikipedia.org/wiki/HTTP_cookie
 type CookieSessionTracker struct {
 }
 
 func (*CookieSessionTracker) ID(ctx *Context) string {
-	id, _ := ctx.Request.GetSecureCookie(sessionIdCookie)
+	id, _ := ctx.Request.SiteCookie(SessionIDCookie)
 	return id
 }
 
 func (*CookieSessionTracker) SetID(ctx *Context, id string) {
-	ctx.Response.SetSecureCookie(sessionIdCookie, id, 0, "/")
+	ctx.Response.SetSiteCookie(SessionIDCookie, id)
 }
 
 func (*CookieSessionTracker) DeleteID(ctx *Context) {
-	ctx.Response.SetSecureCookie(sessionIdCookie, "delete", -time.Now().Unix(), "/")
+	ctx.Response.DeleteSiteCookie(SessionIDCookie)
 }

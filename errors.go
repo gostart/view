@@ -34,7 +34,7 @@ type internalServerError500 struct {
 
 func (self *internalServerError500) Render(ctx *Context) error {
 	message := "500 internal server error"
-	if self.error != nil && Config.Debug.Mode {
+	if self.error != nil && ctx.Server.Debug.Mode {
 		message += "\n\n" + self.error.Error()
 	}
 	ctx.Response.RespondPlainText(500, message)

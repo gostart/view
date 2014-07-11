@@ -3,6 +3,14 @@ package view
 // Views implements the View interface for a slice of views.
 type Views []View
 
+func MakeViews(values ...interface{}) Views {
+	views := make(Views, len(values))
+	for i := range values {
+		views[i] = NewView(values[i])
+	}
+	return views
+}
+
 func (views Views) Render(ctx *Context) (err error) {
 	for _, view := range views {
 		if view != nil {
