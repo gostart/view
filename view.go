@@ -1,41 +1,47 @@
 package view
 
+import ()
+
 // View is the basic interface for all types in the view package.
 type View interface {
 	Render(ctx *Context) (err error)
 }
 
-func NewView(val interface{}) View {
-	if val == nil {
+func asView(value interface{}) View {
+	if value == nil {
 		return nil
 	}
-	switch s := val.(type) {
+	switch s := value.(type) {
 	case View:
 		return s
+
 	case *View:
-		return ViewPtr{s}
+		return Pointer{s}
+
+	case func(ctx *Context) error:
+		return ViewFunc(s)
+
+	case error:
+		return Error{s}
+
 	case string:
 		return String(s)
+
+	case []byte:
+		return Bytes(s)
+
+	case URL:
+		return URLView{s}
 	}
-	return &Print{val}
+	return Print(value)
 }
 
-type ViewPtr struct {
-	Ptr *View
-}
-
-func (viewPtr ViewPtr) Render(ctx *Context) error {
-	if viewPtr.Ptr == nil || *viewPtr.Ptr == nil {
+func AsView(values ...interface{}) View {
+	if len(values) == 0 {
 		return nil
 	}
-	return (*viewPtr.Ptr).Render(ctx)
-}
-
-type ViewFunc func(ctx *Context) error
-
-func (viewFunc ViewFunc) Render(ctx *Context) error {
-	if viewFunc == nil {
-		return nil
+	if len(values) == 1 {
+		return asView(values[0])
 	}
-	return viewFunc(ctx)
+	return AsViews(values...)
 }

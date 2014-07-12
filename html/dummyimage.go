@@ -46,13 +46,13 @@ func (self *DummyImage) Render(ctx *view.Context) (err error) {
 		src += "&text=" + url.QueryEscape(self.Text)
 	}
 
-	ctx.Response.XML.OpenTag("img")
-	ctx.Response.XML.AttribIfNotDefault("id", self.ID)
-	ctx.Response.XML.AttribIfNotDefault("class", self.Class)
-	ctx.Response.XML.Attrib("src", src)
-	ctx.Response.XML.AttribIfNotDefault("width", self.Width)
-	ctx.Response.XML.AttribIfNotDefault("height", self.Height)
-	ctx.Response.XML.AttribIfNotDefault("alt", self.Text)
-	ctx.Response.XML.CloseTag()
+	// ctx.Response.XML.OpenTag("img")
+	// ctx.Response.XML.AttribIfNotDefault("id", self.ID)
+	// ctx.Response.XML.AttribIfNotDefault("class", self.Class)
+	// ctx.Response.XML.Attrib("src", src)
+	// ctx.Response.XML.AttribIfNotDefault("width", self.Width)
+	// ctx.Response.XML.AttribIfNotDefault("height", self.Height)
+	// ctx.Response.XML.AttribIfNotDefault("alt", self.Text)
+	// ctx.Response.XML.CloseTag()
 	return nil
 }

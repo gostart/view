@@ -4,47 +4,100 @@ import (
 	"github.com/gostart/view"
 )
 
-// type LinkModel interface {
-// 	URLGetter
-// 	LinkContent(ctx *Context) View
-// 	LinkTitle(ctx *Context) string
-// 	LinkRel(ctx *Context) string
-// }
-
 // Link represents an HTML <a> or <link> element depending on UseLinkTag.
-// Content and title of the Model will only be rendered for <a>.
 type Link struct {
-	view.URLGetter
+	view.URL
+	UseLinkTag bool
 	ID         string
 	Class      string
-	Content    view.View
 	Title      string
 	Rel        string
 	NewWindow  bool
-	UseLinkTag bool
+	OnClick    string
+	// Name       string
+	Content view.View
 }
 
-func (self *Link) Render(ctx *view.Context) (err error) {
-	if self.UseLinkTag {
-		ctx.Response.XML.OpenTag("link")
+func (link *Link) Render(ctx *view.Context) (err error) {
+	if link.UseLinkTag {
+		ctx.Response.Out("<link")
 	} else {
-		ctx.Response.XML.OpenTag("a")
+		ctx.Response.Out("<a")
 	}
-	ctx.Response.XML.AttribIfNotDefault("id", self.ID)
-	ctx.Response.XML.AttribIfNotDefault("class", self.Class)
-	if self.NewWindow {
-		ctx.Response.XML.Attrib("target", "_blank")
+	if link.ID != "" {
+		writeAttrib(ctx.Response, "id", link.ID)
 	}
-	ctx.Response.XML.Attrib("href", self.URL(ctx))
-	ctx.Response.XML.AttribIfNotDefault("rel", self.Rel)
-	if self.UseLinkTag {
-		ctx.Response.XML.CloseTag() // link
-	} else {
-		ctx.Response.XML.AttribIfNotDefault("title", self.Title)
-		if self.Content != nil {
-			err = self.Content.Render(ctx)
+	if link.Class != "" {
+		writeAttrib(ctx.Response, "class", link.Class)
+	}
+	if link.Title != "" {
+		writeAttrib(ctx.Response, "title", link.Title)
+	}
+	if link.Rel != "" {
+		writeAttrib(ctx.Response, "rel", link.Rel)
+	}
+	if link.NewWindow {
+		writeAttrib(ctx.Response, "target", "_blank")
+	}
+	if link.OnClick != "" {
+		writeAttrib(ctx.Response, "onclick", link.OnClick)
+	}
+	if link.NewWindow {
+		writeAttrib(ctx.Response, "href", link.GetURL(ctx))
+	}
+	ctx.Response.Out(">")
+	if link.Content != nil {
+		err = link.Content.Render(ctx)
+		if err != nil {
+			return err
 		}
-		ctx.Response.XML.CloseTagAlways() // a
 	}
-	return err
+	if link.UseLinkTag {
+		ctx.Response.Out("</link>")
+	} else {
+		ctx.Response.Out("</a>")
+	}
+	return nil
+}
+
+func (link *Link) GetID() string {
+	return link.ID
+}
+
+func (link *Link) SetID(id string) {
+	link.ID = id
+}
+
+// A creates <a href="url">content</a>
+func A(url view.URL, content ...interface{}) *Link {
+	return &Link{URL: url, Content: view.AsView(content...)}
+}
+
+// A_nofollow creates <a href="url" rel="nofollow">content</a>
+func A_nofollow(url view.URL, content ...interface{}) *Link {
+	return &Link{URL: url, Content: view.AsView(content...), Rel: "nofollow"}
+}
+
+// A_blank creates <a href="url" target="_blank">content</a>
+func A_blank(url view.URL, content ...interface{}) *Link {
+	return &Link{URL: url, Content: view.AsView(content...), NewWindow: true}
+}
+
+// A_blank_nofollow creates <a href="url" target="_blank" rel="nofollow">content</a>
+func A_blank_nofollow(url view.URL, content ...interface{}) *Link {
+	return &Link{URL: url, Content: view.AsView(content...), Rel: "nofollow", NewWindow: true}
+}
+
+// A_name creates a named anchor
+func A_name(name string) view.String {
+	return view.Printf("<a name='%s'></a>", name)
+}
+
+// StylesheetLink creates <link rel='stylesheet' href='url'>
+func StylesheetLink(url view.URL) *Link {
+	return &Link{
+		UseLinkTag: true,
+		URL:        url,
+		Rel:        "stylesheet",
+	}
 }

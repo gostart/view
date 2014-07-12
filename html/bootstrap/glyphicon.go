@@ -7,7 +7,7 @@ import (
 type GlyphIcon string
 
 func (icon GlyphIcon) Render(ctx *view.Context) (err error) {
-	ctx.Response.Print("<span class='glyphicon ").Print(string(icon)).Print("'></span>")
+	ctx.Response.Out("<span class='glyphicon ").Out(string(icon)).Out("'></span>")
 	return nil
 }
 

@@ -17,10 +17,10 @@ type Canvas struct {
 }
 
 func (canvas *Canvas) Render(ctx *view.Context) (err error) {
-	ctx.Response.XML.OpenTag("label")
-	ctx.Response.XML.AttribIfNotDefault("id", canvas.ID)
-	ctx.Response.XML.AttribIfNotDefault("class", canvas.Class)
-	ctx.Response.XML.Attrib("width", canvas.Width).Attrib("height", canvas.Height)
-	ctx.Response.XML.CloseTagAlways()
+	// ctx.Response.XML.OpenTag("label")
+	// ctx.Response.XML.AttribIfNotDefault("id", canvas.ID)
+	// ctx.Response.XML.AttribIfNotDefault("class", canvas.Class)
+	// ctx.Response.XML.Attrib("width", canvas.Width).Attrib("height", canvas.Height)
+	// ctx.Response.XML.CloseTagAlways()
 	return err
 }

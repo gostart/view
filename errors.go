@@ -9,6 +9,16 @@ type ViewError interface {
 	error
 }
 
+// Error returns Err when Render is called.
+// Error does not implement ViewError to prevent endless loops.
+type Error struct {
+	Err error
+}
+
+func (err Error) Render(ctx *Context) error {
+	return err.Err
+}
+
 var (
 	ErrNotModified304           ViewError = &response{304, "not modfied"}
 	ErrAuthorizationRequired401 ViewError = &plainTextResponse{401, "401 authorization required"}
@@ -16,11 +26,11 @@ var (
 	ErrNotFound404              ViewError = &plainTextResponse{404, "404 page not found"}
 )
 
-func ErrRedirectPermanently301(url URLGetter) ViewError {
+func ErrRedirectPermanently301(url URL) ViewError {
 	return &redirect{301, url}
 }
 
-func ErrRedirectTemporary302(url URLGetter) ViewError {
+func ErrRedirectTemporary302(url URL) ViewError {
 	return &redirect{302, url}
 }
 
@@ -43,11 +53,11 @@ func (self *internalServerError500) Render(ctx *Context) error {
 
 type redirect struct {
 	code int
-	url  URLGetter
+	url  URL
 }
 
 func (self *redirect) Render(ctx *Context) error {
-	ctx.Response.Respond(self.code, self.url.URL(ctx))
+	ctx.Response.Respond(self.code, self.url.GetURL(ctx))
 	return nil
 }
 

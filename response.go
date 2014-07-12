@@ -70,6 +70,8 @@ func (response *Response) Println(a ...interface{}) (n int, err error) {
 	return fmt.Fprintln(response.writer, a...)
 }
 
+// Out does the same as WriteString, except that it returns
+// *Response to allow call chaining.
 func (response *Response) Out(s string) *Response {
 	_, err := response.WriteString(s)
 	if err != nil {

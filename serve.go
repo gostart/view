@@ -1,13 +1,13 @@
 package view
 
 import (
-	"reflect"
-	// "strings"
+// "reflect"
+// "strings"
 )
 
 var (
-	endpointType = reflect.TypeOf(Endpoint{})
-	pathArgType  = reflect.TypeOf((*pathArg)(nil)).Elem()
+// endpointType = reflect.TypeOf(Endpoint{})
+// pathArgType  = reflect.TypeOf((*pathArg)(nil)).Elem()
 )
 
 // func Serve(site interface{}) error {

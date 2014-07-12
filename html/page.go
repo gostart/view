@@ -1,7 +1,7 @@
 package html
 
 import (
-	"net/http"
+	// "net/http"
 
 	"github.com/gostart/view"
 )
@@ -12,8 +12,4 @@ type Page struct {
 
 func (page *Page) Render(ctx *view.Context) (err error) {
 	return nil
-}
-
-func (page *Page) ServeHTTP(responseWriter http.ResponseWriter, request *http.Request) {
-	view.HTTPHandler(page).ServeHTTP(responseWriter, request)
 }
