@@ -29,34 +29,19 @@ type Response struct {
 	dynamicScripts     dependencyHeap
 }
 
-// // PushBody pushes the buffer of the response body on a stack
-// // and sets a new empty buffer.
-// // This can be used to render intermediate text results.
-// // Note: Only the response body is pushed, all other state changes
-// // like setting headers will affect the final response.
-// func (response *Response) PushBody() {
-// 	var b responseBody
-// 	b.buffer = new(bytes.Buffer)
-// 	b.xml = NewXMLWriter(b.buffer)
-// 	response.bodyStack = append(response.bodyStack, b)
-// 	response.XML = b.xml
-// }
+// GetBytesAndReset() returns a copy of the response buffer and resets it.
+func (response *Response) GetBytesAndReset() []byte {
+	b := response.Buffer.Bytes()
+	response.Buffer = bytes.Buffer{}
+	return b
+}
 
-// // PopBody pops the buffer of the response body from the stack
-// // and returns its content.
-// func (response *Response) PopBody() (bufferData []byte) {
-// 	last := len(response.bodyStack) - 1
-// 	bufferData = response.bodyStack[last].buffer.Bytes()
-// 	response.bodyStack = response.bodyStack[0:last]
-// 	response.XML = response.bodyStack[last-1].xml
-// 	return bufferData
-// }
-
-// // PopBodyString pops the buffer of the response body from the stack
-// // and returns its content as string.
-// func (response *Response) PopBodyString() (bufferData string) {
-// 	return string(response.PopBody())
-// }
+// GetStringAndReset() returns a copy of the response buffer and resets it.
+func (response *Response) GetStringAndReset() string {
+	s := response.Buffer.String()
+	response.Buffer.Reset()
+	return s
+}
 
 func (response *Response) Print(a ...interface{}) (n int, err error) {
 	return fmt.Fprint(response.writer, a...)

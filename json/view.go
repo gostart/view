@@ -2,7 +2,6 @@ package json
 
 import (
 	"encoding/json"
-	"net/http"
 
 	"github.com/gostart/view"
 )
@@ -12,20 +11,27 @@ type View struct {
 	Indent  string
 }
 
+func NewView(content interface{}) *View {
+	return &View{Content: content}
+}
+
+func NewViewIndent(content interface{}, indent string) *View {
+	return &View{Content: content, Indent: indent}
+}
+
 func (v *View) Render(ctx *view.Context) (err error) {
-	var data []byte
+	encoder := json.NewEncoder(ctx.Response)
+	err = encoder.Encode(v.Content)
+	if err != nil {
+		return err
+	}
 	indent := v.Indent
 	if indent == "" {
 		indent = Config.Indent
 	}
-	if indent == "" {
-		data, err = json.Marshal(v.Content)
-	} else {
-		data, err = json.MarshalIndent(v.Content, "", Config.Indent)
+	if indent != "" {
+		data := ctx.Response.GetBytesAndReset()
+		err = json.Indent(&ctx.Response.Buffer, data, "", indent)
 	}
-	if err != nil {
-		return err
-	}
-	ctx.Response.Write(data)
-	return nil
+	return err
 }
