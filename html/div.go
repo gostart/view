@@ -21,16 +21,16 @@ type Div struct {
 func (div *Div) Render(ctx *view.Context) (err error) {
 	ctx.Response.Out("<div")
 	if div.ID != "" {
-		writeAttrib(ctx.Response, "id", div.ID)
+		WriteAttrib(ctx.Response, "id", div.ID)
 	}
 	if div.Class != "" {
-		writeAttrib(ctx.Response, "class", div.Class)
+		WriteAttrib(ctx.Response, "class", div.Class)
 	}
 	if div.Style != "" {
-		writeAttrib(ctx.Response, "style", div.Style)
+		WriteAttrib(ctx.Response, "style", div.Style)
 	}
 	if div.OnClick != "" {
-		writeAttrib(ctx.Response, "onclick", div.OnClick)
+		WriteAttrib(ctx.Response, "onclick", div.OnClick)
 	}
 	ctx.Response.Out(">")
 	if div.Content != nil {

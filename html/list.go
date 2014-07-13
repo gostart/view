@@ -19,25 +19,25 @@ func (list *List) Render(ctx *view.Context) (err error) {
 	if list.Ordered {
 		ctx.Response.Out("<ol")
 		if list.OrderOffset != 0 {
-			writeAttrib(ctx.Response, "start", list.OrderOffset+1)
+			WriteAttrib(ctx.Response, "start", list.OrderOffset+1)
 		}
 	} else {
 		ctx.Response.Out("<ul")
 	}
 	if list.ID != "" {
-		writeAttrib(ctx.Response, "id", list.ID)
+		WriteAttrib(ctx.Response, "id", list.ID)
 	}
 	if list.Class != "" {
-		writeAttrib(ctx.Response, "class", list.Class)
+		WriteAttrib(ctx.Response, "class", list.Class)
 	}
 	if list.Style != "" {
-		writeAttrib(ctx.Response, "style", list.Style)
+		WriteAttrib(ctx.Response, "style", list.Style)
 	}
 
 	for i, view := range list.Items {
 		ctx.Response.Out("<li")
 		if list.ID != "" {
-			writeAttrib(ctx.Response, "id", fmt.Sprint(list.ID, "_", i))
+			WriteAttrib(ctx.Response, "id", fmt.Sprint(list.ID, "_", i))
 		}
 		ctx.Response.Out(">")
 		if view != nil {

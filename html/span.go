@@ -16,16 +16,16 @@ type Span struct {
 func (span *Span) Render(ctx *view.Context) (err error) {
 	ctx.Response.Out("<span")
 	if span.ID != "" {
-		writeAttrib(ctx.Response, "id", span.ID)
+		WriteAttrib(ctx.Response, "id", span.ID)
 	}
 	if span.Class != "" {
-		writeAttrib(ctx.Response, "class", span.Class)
+		WriteAttrib(ctx.Response, "class", span.Class)
 	}
 	if span.Style != "" {
-		writeAttrib(ctx.Response, "style", span.Style)
+		WriteAttrib(ctx.Response, "style", span.Style)
 	}
 	if span.OnClick != "" {
-		writeAttrib(ctx.Response, "onclick", span.OnClick)
+		WriteAttrib(ctx.Response, "onclick", span.OnClick)
 	}
 	ctx.Response.Out(">")
 	if span.Content != nil {

@@ -17,25 +17,25 @@ type Image struct {
 func (img *Image) Render(ctx *view.Context) (err error) {
 	ctx.Response.Out("<img")
 	if img.ID != "" {
-		writeAttrib(ctx.Response, "id", img.ID)
+		WriteAttrib(ctx.Response, "id", img.ID)
 	}
 	if img.Class != "" {
-		writeAttrib(ctx.Response, "class", img.Class)
+		WriteAttrib(ctx.Response, "class", img.Class)
 	}
 	if img.Width != 0 {
-		writeAttrib(ctx.Response, "width", img.Width)
+		WriteAttrib(ctx.Response, "width", img.Width)
 	}
 	if img.Height != 0 {
-		writeAttrib(ctx.Response, "height", img.Height)
+		WriteAttrib(ctx.Response, "height", img.Height)
 	}
 	if img.Title != "" {
-		writeAttrib(ctx.Response, "title", img.Title)
-		writeAttrib(ctx.Response, "alt", img.Title)
+		WriteAttrib(ctx.Response, "title", img.Title)
+		WriteAttrib(ctx.Response, "alt", img.Title)
 	}
 	if img.OnClick != "" {
-		writeAttrib(ctx.Response, "onclick", img.OnClick)
+		WriteAttrib(ctx.Response, "onclick", img.OnClick)
 	}
-	writeAttrib(ctx.Response, "src", img.GetURL(ctx))
+	WriteAttrib(ctx.Response, "src", img.GetURL(ctx))
 	ctx.Response.Out("/>")
 	return nil
 }

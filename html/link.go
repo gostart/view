@@ -25,25 +25,25 @@ func (link *Link) Render(ctx *view.Context) (err error) {
 		ctx.Response.Out("<a")
 	}
 	if link.ID != "" {
-		writeAttrib(ctx.Response, "id", link.ID)
+		WriteAttrib(ctx.Response, "id", link.ID)
 	}
 	if link.Class != "" {
-		writeAttrib(ctx.Response, "class", link.Class)
+		WriteAttrib(ctx.Response, "class", link.Class)
 	}
 	if link.Title != "" {
-		writeAttrib(ctx.Response, "title", link.Title)
+		WriteAttrib(ctx.Response, "title", link.Title)
 	}
 	if link.Rel != "" {
-		writeAttrib(ctx.Response, "rel", link.Rel)
+		WriteAttrib(ctx.Response, "rel", link.Rel)
 	}
 	if link.NewWindow {
-		writeAttrib(ctx.Response, "target", "_blank")
+		WriteAttrib(ctx.Response, "target", "_blank")
 	}
 	if link.OnClick != "" {
-		writeAttrib(ctx.Response, "onclick", link.OnClick)
+		WriteAttrib(ctx.Response, "onclick", link.OnClick)
 	}
 	if link.NewWindow {
-		writeAttrib(ctx.Response, "href", link.GetURL(ctx))
+		WriteAttrib(ctx.Response, "href", link.GetURL(ctx))
 	}
 	ctx.Response.Out(">")
 	if link.Content != nil {

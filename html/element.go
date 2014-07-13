@@ -9,6 +9,8 @@ import (
 	"github.com/gostart/view"
 )
 
+var CloseTag interface{}
+
 func Element(tag string, args ...interface{}) view.View {
 	lenArgs := len(args)
 
@@ -16,29 +18,31 @@ func Element(tag string, args ...interface{}) view.View {
 	buf.WriteByte('<')
 	buf.WriteString(tag)
 	for i := 0; i < lenArgs; i += 2 {
-		writeAttrib(&buf, args[i], args[i+1])
+		WriteAttrib(&buf, args[i], args[i+1])
+	}
+	if lenArgs&1 == 0 {
+		buf.WriteString("/>")
+		return view.String(buf.String())
 	}
 	buf.WriteByte('>')
 
-	if lenArgs&1 == 0 {
-		// If there is no uneven last argument as view,
-		// close tag and return buf bytes.
+	content := view.AsView(args[lenArgs-1])
 
+	if content == nil {
 		buf.WriteString("</")
 		buf.WriteString(tag)
 		buf.WriteByte('>')
-
 		return view.String(buf.String())
 	}
 
 	return &elem{
 		open:  buf.String(),
-		view:  view.AsView(args[lenArgs-1]),
+		view:  content,
 		close: "</" + tag + ">",
 	}
 }
 
-func writeAttrib(writer io.Writer, name, value interface{}) {
+func WriteAttrib(writer io.Writer, name, value interface{}) {
 	fmt.Fprint(writer, " ", name, "='", html.EscapeString(fmt.Sprint(value)), "'")
 }
 
@@ -50,13 +54,12 @@ type elem struct {
 
 func (e *elem) Render(ctx *view.Context) (err error) {
 	ctx.Response.Out(e.open)
-	if e.view != nil {
-		err = e.view.Render(ctx)
+	err = e.view.Render(ctx)
+	if err != nil {
+		return err
 	}
-	if err == nil {
-		ctx.Response.Out(e.close)
-	}
-	return err
+	ctx.Response.Out(e.close)
+	return nil
 }
 
 ///////////////////////////////////////////////////////////////////////////////
