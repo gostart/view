@@ -22,6 +22,7 @@ func UniqueID() string {
 	idCounterMutex.Lock()
 	defer idCounterMutex.Unlock()
 
+	idCounter++
 	return fmt.Sprint("ID", idCounter)
 }
 
